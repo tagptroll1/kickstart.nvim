@@ -7,6 +7,10 @@ vim.g.have_nerd_font = true
 -- [[ Setting options ]]
 -- See `:help vim.opt`
 
+vim.opt.tabstop = 8
+vim.opt.softtabstop = 2
+vim.shiftwidth = 2
+
 -- Make line numbers default
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
@@ -52,7 +56,6 @@ vim.opt.splitbelow = true
 --  See `:help 'list'`
 --  and `:help 'listchars'`
 vim.opt.list = true
-vim.opt.listchars = { nbsp = '␣' }
 
 -- Preview substitutions live, as you type!
 vim.opt.inccommand = 'split'
@@ -89,6 +92,9 @@ vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left wind
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+
+vim.keymap.set('n', '<C-d>', '<C-d>zz', { desc = 'Jump half a screen down and center' })
+vim.keymap.set('n', '<C-u>', '<C-u>zz', { desc = 'Jump half a screen down and center' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -443,6 +449,26 @@ require('lazy').setup({
     },
   },
 
+  {
+    'nvim-tree/nvim-tree.lua',
+    version = '*',
+    lazy = false,
+    dependencies = {
+      'nvim-tree/nvim-web-devicons',
+      'echasnovski/mini.base16',
+    },
+    config = function()
+      require('nvim-tree').setup {
+        view = {
+          width = 25,
+        },
+        filters = {
+          dotfiles = false,
+        },
+      }
+    end,
+  },
+
   { -- Autocompletion
     'hrsh7th/nvim-cmp',
     event = 'InsertEnter',
@@ -534,9 +560,18 @@ require('lazy').setup({
     'folke/tokyonight.nvim',
     priority = 1000, -- Make sure to load this before all the other start plugins.
     init = function()
-      vim.cmd.colorscheme 'habamax'
+      vim.cmd.colorscheme 'tokyonight-night'
       vim.cmd.hi 'Comment gui=none'
     end,
+  },
+
+  {
+    'ThePrimeagen/harpoon',
+    branch = 'harpoon2',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+    },
+    opts = {},
   },
 
   -- Highlight todo, notes, etc in comments
@@ -638,6 +673,16 @@ require('lazy').setup({
       lazy = '💤 ',
     },
   },
+})
+
+-- Setup go.vnim auto format on save
+local format_sync_grp = vim.api.nvim_create_augroup('GoImport', {})
+vim.api.nvim_create_autocmd('BufWritePre', {
+  pattern = '*.go',
+  callback = function()
+    require('go.format').goimport()
+  end,
+  group = format_sync_grp,
 })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
